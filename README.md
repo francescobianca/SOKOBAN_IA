@@ -1,1 +1,1 @@
-# SOKOBAN_IA
+# SOKOBAN-IA
