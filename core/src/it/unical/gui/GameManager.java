@@ -24,56 +24,27 @@ public class GameManager implements Screen {
 	private Player player;
 	private boolean winner;
 	private int step = 0;
-	
-	private Levels levels;
-	
+		
 	private Sprite sprite;
 
 	public GameManager(final Sokoban sokoban) {
 		// TODO Auto-generated constructor stub
 		this.sokoban = sokoban;
-		
-		levels = new Levels();
-		
-		world = new World();
+				
+		world = new World(sokoban.getLivelloScelto());
 		winner = false;
 		
-		//loadLevel(levels.getLevel("level1"));
 		loadLevel();
-		world.print();
 		
-		
-		//sprite = new Sprite(SplashScreen.loader.loadPlayerImage());
 		sprite = new Sprite(new TextureRegion(SplashScreen.loader.loadPlayerImage(), 0, 0, 64, 64));
 		
 		
 	}
 
-	public void loadLevel(){//File level) {
-		world.loadMatrix();//level);
+	public void loadLevel(){
+		world.loadMatrix();
 		player = world.getPlayer();
 	}
-
-	/*public void drawLevel() {
-		for (int i = 0; i < world.getNumberRow(); i++) {
-			for (int j = 0; j < world.getNumberColumn(); j++) {
-				//System.out.println(world.getObject(i, j).toString());
-				if (world.isThereGround(i, j))
-					sokoban.batch.draw(SplashScreen.loader.loadGroundImage(),i,j,50,47);
-				if (world.isThereGoal(i, j))
-					sokoban.batch.draw(SplashScreen.loader.loadGoalImage(),i,j,50,47);
-				ObjectGame tmp = world.getObject(i, j);
-				if (tmp instanceof Player)
-					sokoban.batch.draw(SplashScreen.loader.loadPlayerImage(),i,j,50,47);
-				if (tmp instanceof Goal)
-					sokoban.batch.draw(SplashScreen.loader.loadGoalImage(),i,j,50,47);
-				if (tmp instanceof Box)
-					sokoban.batch.draw(SplashScreen.loader.loadBoxImage(),i,j,50,47);
-				if (tmp instanceof Wall)
-					sokoban.batch.draw(SplashScreen.loader.loadWallBigImage(),i,j,50,47);
-			}
-		}
-	}*/
 
 	public void removeLevel() {
 
@@ -111,9 +82,7 @@ public class GameManager implements Screen {
 		Gdx.gl.glClearColor(0.3f, 0.3f, 0.3f, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		sokoban.batch.begin();
-		//drawLevel();
-		
-		//sokoban.batch.draw(SplashScreen.loader.loadGrassImage(),0,0,Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
+	
 		for (int i=0; i<800;i+=64)
 			for (int j=0; j<600; j+=64)
 				sokoban.batch.draw(SplashScreen.loader.loadGrassImage(),i,j,64,64);
@@ -122,6 +91,11 @@ public class GameManager implements Screen {
 		
 		int maxI = (world.getNumberRow()-1)*64;
 
+		for(Goal g:world.getGoals()){
+			sokoban.batch.draw(SplashScreen.loader.loadGoalImage(), g.getJ()*64,maxI-(g.getI()*64),64,64);
+		}
+		
+		
 		for (int i = 0; i <world.getNumberRow() ; i++) {
 			for (int j = 0; j <world.getNumberColumn(); j++) {
 								
@@ -133,8 +107,8 @@ public class GameManager implements Screen {
 					//sprite.setRegion(0, 0, 64, 64);
 					sprite.draw(sokoban.batch);
 				}
-				if (tmp instanceof Goal)
-					sokoban.batch.draw(SplashScreen.loader.loadGoalImage(),j*64,maxI,64,64);
+			/*	if (tmp instanceof Goal)
+					sokoban.batch.draw(SplashScreen.loader.loadGoalImage(),j*64,maxI,64,64);*/
 				if (tmp instanceof Box)
 					sokoban.batch.draw(SplashScreen.loader.loadBoxImage(),j*64,maxI,64,64);
 				if (tmp instanceof Wall)

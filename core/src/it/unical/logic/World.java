@@ -22,8 +22,10 @@ public class World {
 	
 	private Player player;
 
-	public World() {
-		// TODO Auto-generated constructor stub
+	private final int livello;
+	
+	public World(final int livello) {
+		this.livello=livello;
 	}
 
 	public ObjectGame getObject(int i, int j) {
@@ -33,10 +35,8 @@ public class World {
 	public void loadMatrix(){//File file) {
 
 		try {
-			//System.out.println(file);
-			File file1 = new File("C:/Users/Francesco/git/SOKOBAN-IA/core/level/level6");
+			File file1 = new File("../core/level/level"+this.livello);
 			
-			System.out.println(file1);
 			FileReader filein = new FileReader(file1);
 			int next = 0;
 			int currentRow = 0, currentColumn = 0;

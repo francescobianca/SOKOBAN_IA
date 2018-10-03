@@ -35,41 +35,68 @@ public class LevelsScreen implements Screen {
 				&& Gdx.input.getY() > 487 && Gdx.input.getY() < 587)
 			sokoban.swap(2); // Tasto UNDO
 
-		if (Gdx.input.isButtonPressed(Input.Buttons.LEFT) && Gdx.input.getX() > 144 && Gdx.input.getX() < 294
+		if (Gdx.input.justTouched() && Gdx.input.getX() > 144 && Gdx.input.getX() < 294
 				&& Gdx.input.getY() > 49 && Gdx.input.getY() < 199)
-			; // Livello1
+			{
+				sokoban.setLivelloScelto(1);
+				sokoban.swap(1);
+			}
 
-		if (Gdx.input.isButtonPressed(Input.Buttons.LEFT) && Gdx.input.getX() > 326 && Gdx.input.getX() < 476
+		if (Gdx.input.justTouched() && Gdx.input.getX() > 326 && Gdx.input.getX() < 476
 				&& Gdx.input.getY() > 49 && Gdx.input.getY() < 199)
-			; // Livello2
-
-		if (Gdx.input.isButtonPressed(Input.Buttons.LEFT) && Gdx.input.getX() > 506 && Gdx.input.getX() < 656
+		{
+			sokoban.setLivelloScelto(2);
+			sokoban.swap(1);
+		}
+		
+		if (Gdx.input.justTouched() && Gdx.input.getX() > 506 && Gdx.input.getX() < 656
 				&& Gdx.input.getY() > 49 && Gdx.input.getY() < 199)
-			; // Livello3
+		{
+			sokoban.setLivelloScelto(3);
+			sokoban.swap(1);
+		}
 
-		if (Gdx.input.isButtonPressed(Input.Buttons.LEFT) && Gdx.input.getX() > 144 && Gdx.input.getX() < 294
+		if (Gdx.input.justTouched() && Gdx.input.getX() > 144 && Gdx.input.getX() < 294
 				&& Gdx.input.getY() > 225 && Gdx.input.getY() < 375)
-			; // Livello4
+		{
+			sokoban.setLivelloScelto(4);
+			sokoban.swap(1);
+		}
 
-		if (Gdx.input.isButtonPressed(Input.Buttons.LEFT) && Gdx.input.getX() > 326 && Gdx.input.getX() < 476
+		if (Gdx.input.justTouched() && Gdx.input.getX() > 326 && Gdx.input.getX() < 476
 				&& Gdx.input.getY() > 225 && Gdx.input.getY() < 375)
-			; // Livello5
+		{
+			sokoban.setLivelloScelto(5);
+			sokoban.swap(1);
+		}
 
-		if (Gdx.input.isButtonPressed(Input.Buttons.LEFT) && Gdx.input.getX() > 506 && Gdx.input.getX() < 656
+		if (Gdx.input.justTouched() && Gdx.input.getX() > 506 && Gdx.input.getX() < 656
 				&& Gdx.input.getY() > 225 && Gdx.input.getY() < 375)
-			; // Livello6
+		{
+			sokoban.setLivelloScelto(6);
+			sokoban.swap(1);
+		}
 
-		if (Gdx.input.isButtonPressed(Input.Buttons.LEFT) && Gdx.input.getX() > 144 && Gdx.input.getX() < 294
+		if (Gdx.input.justTouched() && Gdx.input.getX() > 144 && Gdx.input.getX() < 294
 				&& Gdx.input.getY() > 401 && Gdx.input.getY() < 551)
-			; // Livello7
+		{
+			sokoban.setLivelloScelto(7);
+			sokoban.swap(1);
+		}
 
-		if (Gdx.input.isButtonPressed(Input.Buttons.LEFT) && Gdx.input.getX() > 326 && Gdx.input.getX() < 476
+		if (Gdx.input.justTouched() && Gdx.input.getX() > 326 && Gdx.input.getX() < 476
 				&& Gdx.input.getY() > 401 && Gdx.input.getY() < 551)
-			; // Livello8
+		{
+			sokoban.setLivelloScelto(8);
+			sokoban.swap(1);
+		}
 
-		if (Gdx.input.isButtonPressed(Input.Buttons.LEFT) && Gdx.input.getX() > 506 && Gdx.input.getX() < 656
+		if (Gdx.input.justTouched() && Gdx.input.getX() > 506 && Gdx.input.getX() < 656
 				&& Gdx.input.getY() > 401 && Gdx.input.getY() < 551)
-			; // Livello9
+		{
+			sokoban.setLivelloScelto(9);
+			sokoban.swap(1);
+		}
 
 	}
 

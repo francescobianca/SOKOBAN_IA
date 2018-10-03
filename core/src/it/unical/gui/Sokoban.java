@@ -12,7 +12,9 @@ public class Sokoban extends Game {
 	public GameManager gameManager;
 	public MenuScreen menuScreen;
 	public LevelsScreen levelsScreen;
-
+	
+	private int livelloScelto=1;
+	
 	@Override
 	public void create() {
 		// TODO Auto-generated method stub
@@ -53,5 +55,18 @@ public class Sokoban extends Game {
 			break;
 		}
 	}
-
+	
+	/**
+	 * @param livelloScelto the livelloScelto to set
+	 */
+	public void setLivelloScelto(int livelloScelto) {
+		this.livelloScelto = livelloScelto;
+	}
+	
+	/**
+	 * @return the livelloScelto
+	 */
+	public int getLivelloScelto() {
+		return livelloScelto;
+	}
 }
