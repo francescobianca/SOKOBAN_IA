@@ -1,7 +1,7 @@
 % ---------------- MODELLO DATI IN INPUT -----------------
 
-% riga(1..NRiga). colonna(1..NColonna). masso(NPasso,Riga,Colonna,IDMasso).
-% posizione(Npasso,Riga,Colonna) --> Player. muro(Riga,Colonna). mossa(NPasso,TipoMossa).
+% riga(1..NRiga). colonna(1..NColonna). scatola(NPasso,Riga,Colonna,IDscatola).
+% personaggio(Npasso,Riga,Colonna) --> Player. muro(Riga,Colonna). mossa(NPasso,TipoMossa).
 % obiettivo(Riga,Colonna). maxMosse(X) --> mosse su una cassa.
 
 
@@ -10,22 +10,22 @@
 %Caselle libere in cui si può passare --> non ci sono muri.
 casella(X,Y) :- riga(X), colonna(Y), not muro(X,Y).
 
-%sposto o meno un masso se ho ancora mosse disponibili
-sposto(T,Id) | nonsposto(T,Id) :- maxmosse(X),masso(T,R,C,Id),T<X, not piuDiUno.
+%sposto o meno un scatola se ho ancora mosse disponibili
+sposto(T,Id) | nonsposto(T,Id) :- maxmosse(X),scatola(T,R,C,Id),T<X, not piuDiUno.
 
-% non posso spostare più di un masso, spostarne almeno uno mi viene gratis incrementando il numero di mosse consentito di uno per volta
+% non posso spostare più di un scatola, spostarne almeno uno mi viene gratis incrementando il numero di mosse consentito di uno per volta
 piuDiUno:- sposto(T,X),sposto(T,X1),X!=X1.
 
-% se sposto il masso Id al passo T, lo posso spostare sopra,sotto,sinistra o destra
+% se sposto il scatola Id al passo T, lo posso spostare sopra,sotto,sinistra o destra
 mossa(T,sopra) | mossa(T,sotto) | mossa (T,destra) | mossa(T,sinistra) :- sposto(T,Id),not piuDiUno.
 
-% se sposto un masso al tempo t, al tempo t+1 il player sara dove c'era prima il masso spostato (ricordando di controllare che abbia potuto spostare il masso in quella posizione)
-posizione(T+1,X,Y) :- sposto(T,Id),masso(T,X,Y,Id).
+% se sposto un scatola al tempo t, al tempo t+1 il player sara dove c'era prima il scatola spostato (ricordando di controllare che abbia potuto spostare il scatola in quella personaggio)
+personaggio(T+1,X,Y) :- sposto(T,Id),scatola(T,X,Y,Id).
 spostoqualcosa(T) :- sposto(T,_).
-posizione(T+1,X,Y) :- posizione(T,X,Y),not spostoqualcosa(T),maxmosse(K),T<K.
+personaggio(T+1,X,Y) :- personaggio(T,X,Y),not spostoqualcosa(T),maxmosse(K),T<K.
 
-% occupata se c'è un masso
-occupata(T,X,Y) :- masso(T,X,Y,_).
+% occupata se c'è un scatola
+occupata(T,X,Y) :- scatola(T,X,Y,_).
 
 %controllo gli angoli, dove le scatole non possono andare
 angolo(X,Y) :- casella(X,Y), not casella(X-1,Y), not casella(X,Y-1).
@@ -33,48 +33,48 @@ angolo(X,Y) :- casella(X,Y), not casella(X-1,Y), not casella(X,Y+1).
 angolo(X,Y) :- casella(X,Y), not casella(X+1,Y), not casella(X,Y+1).
 angolo(X,Y) :- casella(X,Y), not casella(X+1,Y), not casella(X,Y-1).
 
-% Più di uno non controlla solamente se c'è solo uno masso spostato per turno ma controlla anche i possibili errori --> Percorso non raggiungibile, casellaOccupata, casellaNonAccessibile, Non c'è un obiettivo sull'angolo
+% Più di uno non controlla solamente se c'è solo uno scatola spostato per turno ma controlla anche i possibili errori --> Percorso non raggiungibile, casellaOccupata, casellaNonAccessibile, Non c'è un obiettivo sull'angolo
 
-piuDiUno:- sposto(T,Id),mossa(T,sopra),masso(T,X,Y,Id),occupata(T,X-1,Y).
-piuDiUno:- sposto(T,Id),mossa(T,sotto),masso(T,X,Y,Id),occupata(T,X+1,Y).
-piuDiUno:- sposto(T,Id),mossa(T,destra),masso(T,X,Y,Id),occupata(T,X,Y+1).
-piuDiUno:- sposto(T,Id),mossa(T,sinistra),masso(T,X,Y,Id),occupata(T,X,Y-1).
+piuDiUno:- sposto(T,Id),mossa(T,sopra),scatola(T,X,Y,Id),occupata(T,X-1,Y).
+piuDiUno:- sposto(T,Id),mossa(T,sotto),scatola(T,X,Y,Id),occupata(T,X+1,Y).
+piuDiUno:- sposto(T,Id),mossa(T,destra),scatola(T,X,Y,Id),occupata(T,X,Y+1).
+piuDiUno:- sposto(T,Id),mossa(T,sinistra),scatola(T,X,Y,Id),occupata(T,X,Y-1).
 
-piuDiUno:- sposto(T,Id),mossa(T,sopra),masso(T,X,Y,Id),not casella(X-1,Y).
-piuDiUno:- sposto(T,Id),mossa(T,sotto),masso(T,X,Y,Id),not casella(X+1,Y).
-piuDiUno:- sposto(T,Id),mossa(T,destra),masso(T,X,Y,Id),not casella(X,Y+1).
-piuDiUno:- sposto(T,Id),mossa(T,sinistra),masso(T,X,Y,Id),not casella(X,Y-1).
+piuDiUno:- sposto(T,Id),mossa(T,sopra),scatola(T,X,Y,Id),not casella(X-1,Y).
+piuDiUno:- sposto(T,Id),mossa(T,sotto),scatola(T,X,Y,Id),not casella(X+1,Y).
+piuDiUno:- sposto(T,Id),mossa(T,destra),scatola(T,X,Y,Id),not casella(X,Y+1).
+piuDiUno:- sposto(T,Id),mossa(T,sinistra),scatola(T,X,Y,Id),not casella(X,Y-1).
 
-piuDiUno:- sposto(T,Id),mossa(T,sopra),masso(T,X,Y,Id),angolo(X-1,Y), not obiettivo(X-1,Y).
-piuDiUno:- sposto(T,Id),mossa(T,sotto),masso(T,X,Y,Id),angolo(X+1,Y), not obiettivo(X+1,Y).
-piuDiUno:- sposto(T,Id),mossa(T,destra),masso(T,X,Y,Id),angolo(X,Y+1), not obiettivo(X,Y+1).
-piuDiUno:- sposto(T,Id),mossa(T,sinistra),masso(T,X,Y,Id),angolo(X,Y-1), not obiettivo(X,Y-1).
+piuDiUno:- sposto(T,Id),mossa(T,sopra),scatola(T,X,Y,Id),angolo(X-1,Y), not obiettivo(X-1,Y).
+piuDiUno:- sposto(T,Id),mossa(T,sotto),scatola(T,X,Y,Id),angolo(X+1,Y), not obiettivo(X+1,Y).
+piuDiUno:- sposto(T,Id),mossa(T,destra),scatola(T,X,Y,Id),angolo(X,Y+1), not obiettivo(X,Y+1).
+piuDiUno:- sposto(T,Id),mossa(T,sinistra),scatola(T,X,Y,Id),angolo(X,Y-1), not obiettivo(X,Y-1).
 
-piuDiUno:- sposto(T,Id),mossa(T,sopra),masso(T,X,Y,Id),not raggiungibile(T,X+1,Y).
-piuDiUno:- sposto(T,Id),mossa(T,sotto),masso(T,X,Y,Id),not raggiungibile(T,X-1,Y).
-piuDiUno:- sposto(T,Id),mossa(T,destra),masso(T,X,Y,Id),not raggiungibile(T,X,Y-1).
-piuDiUno:- sposto(T,Id),mossa(T,sinistra),masso(T,X,Y,Id),not raggiungibile(T,X,Y+1).
+piuDiUno:- sposto(T,Id),mossa(T,sopra),scatola(T,X,Y,Id),not raggiungibile(T,X+1,Y).
+piuDiUno:- sposto(T,Id),mossa(T,sotto),scatola(T,X,Y,Id),not raggiungibile(T,X-1,Y).
+piuDiUno:- sposto(T,Id),mossa(T,destra),scatola(T,X,Y,Id),not raggiungibile(T,X,Y-1).
+piuDiUno:- sposto(T,Id),mossa(T,sinistra),scatola(T,X,Y,Id),not raggiungibile(T,X,Y+1).
 
-raggiungibile(T,R,C) :- posizione(T,R,C).
+raggiungibile(T,R,C) :- personaggio(T,R,C).
 raggiungibile(T,X,Y) :- raggiungibile(T,R,C),casella(X,Y),X=R,Y=C+1, not occupata(T,X,Y).
 raggiungibile(T,X,Y) :- raggiungibile(T,R,C),casella(X,Y),X=R,Y=C-1, not occupata(T,X,Y).
 raggiungibile(T,X,Y) :- raggiungibile(T,R,C),casella(X,Y),X=R-1,Y=C, not occupata(T,X,Y).
 raggiungibile(T,X,Y) :- raggiungibile(T,R,C),casella(X,Y),X=R+1,Y=C, not occupata(T,X,Y).
 
-% Aumento il numeroPasso per ogni masso dopo ogni mossa.
+% Aumento il numeroPasso per ogni scatola dopo ogni mossa.
 
-masso(T+1,X-1,Y,Id):- sposto(T,Id),mossa(T,sopra),masso(T,X,Y,Id).
-masso(T+1,X+1,Y,Id):- sposto(T,Id),mossa(T,sotto),masso(T,X,Y,Id).
-masso(T+1,X,Y+1,Id):- sposto(T,Id),mossa(T,destra),masso(T,X,Y,Id).
-masso(T+1,X,Y-1,Id):- sposto(T,Id),mossa(T,sinistra),masso(T,X,Y,Id).
+scatola(T+1,X-1,Y,Id):- sposto(T,Id),mossa(T,sopra),scatola(T,X,Y,Id).
+scatola(T+1,X+1,Y,Id):- sposto(T,Id),mossa(T,sotto),scatola(T,X,Y,Id).
+scatola(T+1,X,Y+1,Id):- sposto(T,Id),mossa(T,destra),scatola(T,X,Y,Id).
+scatola(T+1,X,Y-1,Id):- sposto(T,Id),mossa(T,sinistra),scatola(T,X,Y,Id).
 
-%Check su raggiungimento di un obiettivo. Si raggiunge quando il masso ci va sopra.
+%Check su raggiungimento di un obiettivo. Si raggiunge quando il scatola ci va sopra.
 
-raggiunto(Id) :- maxmosse(X), masso(X,R,C,Id), obiettivo(R,C).
-:- masso(_,_,Id), not raggiunto(Id).
+raggiunto(Id) :- maxmosse(X), scatola(X,R,C,Id), obiettivo(R,C).
+:- scatola(_,_,Id), not raggiunto(Id).
 
 % Incremento se non ho spostato.
-masso(T+1,X,Y,Id) :- masso(T,X,Y,Id),  nonsposto(T,Id),maxmosse(K),T<K.
+scatola(T+1,X,Y,Id) :- scatola(T,X,Y,Id),  nonsposto(T,Id),maxmosse(K),T<K.
 
 %ottimizzazione --> direzioni opposte. Non fare destra/sinistra oppure sopra/sotto un turno dopo l'altro. 
 piuDiUno:- sposto(T,Id),sposto(T+1,Id), mossa(T,sopra),mossa(T+1,sotto).

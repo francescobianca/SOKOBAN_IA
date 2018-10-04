@@ -6,8 +6,16 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.files.FileHandle;
+import it.unical.encodingObject.Colonna;
+import it.unical.encodingObject.MaxMosse;
+import it.unical.encodingObject.Muro;
+import it.unical.encodingObject.Obiettivo;
+import it.unical.encodingObject.Personaggio;
+import it.unical.encodingObject.Riga;
+import it.unical.encodingObject.Scatola;
+import it.unical.gui.SplashScreen;
+import it.unical.mat.embasp.base.InputProgram;
+import it.unical.mat.embasp.languages.asp.ASPInputProgram;
 
 public class World {
 
@@ -19,24 +27,24 @@ public class World {
 	private ArrayList<Goal> goals;
 	private ArrayList<Box> boxs;
 	private ArrayList<Ground> grounds;
-	
+
 	private Player player;
 
 	private final int livello;
-	
+
 	public World(final int livello) {
-		this.livello=livello;
+		this.livello = livello;
 	}
 
 	public ObjectGame getObject(int i, int j) {
 		return world[i][j];
 	}
 
-	public void loadMatrix(){//File file) {
+	public void loadMatrix() {// File file) {
 
 		try {
-			File file1 = new File("../core/level/level"+this.livello);
-			
+			File file1 = new File("../core/level/level" + this.livello);
+
 			FileReader filein = new FileReader(file1);
 			int next = 0;
 			int currentRow = 0, currentColumn = 0;
@@ -50,19 +58,22 @@ public class World {
 
 			do {
 				next = b.read();
-				
+
 				if (next != -1 && currentRow < numberRow) {
 					char nextc = (char) next;
-										
+
 					switch (nextc) {
-					/*case '0':
-						break;*/
+					/*
+					 * case '0': break;
+					 */
 					case '1':
 						world[currentRow][currentColumn] = new Wall(currentRow, currentColumn);
 						break;
 					case '0':
-						/*Ground groundTmp = new Ground(currentRow, currentColumn);
-						grounds.add(groundTmp);*/
+						/*
+						 * Ground groundTmp = new Ground(currentRow, currentColumn);
+						 * grounds.add(groundTmp);
+						 */
 						world[currentRow][currentColumn] = new Ground(currentRow, currentColumn);
 						break;
 					case '3':
@@ -90,7 +101,7 @@ public class World {
 				}
 
 			} while (next != -1);
-			
+
 			filein.close();
 			b.close();
 
@@ -98,7 +109,35 @@ public class World {
 			System.out.println(e);
 			System.out.println("File non esistente");
 		}
+	}
 
+	// restituisco un InputProgram con i fatti del world
+	public InputProgram loadDLVFacts() {	
+		InputProgram input = new ASPInputProgram();
+		try {
+			
+			input.addObjectInput(new MaxMosse(6));
+			for(int i=0;i<numberRow;i++) {
+				input.addObjectInput(new Riga(i));
+				for(int j=0;j<numberColumn;j++) {
+					input.addObjectInput(new Colonna(j));
+				if (world[i][j] instanceof Player)
+					input.addObjectInput(new Personaggio(0, i, j));
+				if (world[i][j] instanceof Goal)
+					input.addObjectInput(new Obiettivo(i, j));					
+				if (world[i][j] instanceof Box) {
+					Box b=(Box)world[i][j];
+					input.addObjectInput(new Scatola(0, i, j,b.getId()));
+					System.out.println(b.getId());
+				}if (world[i][j] instanceof Wall)
+					input.addObjectInput(new Muro(i, j));
+				}
+			}
+			
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+		return input;
 	}
 
 	public void print() {
@@ -106,7 +145,7 @@ public class World {
 			String row = "";
 			for (int j = 0; j < numberColumn; j++) {
 				if (world[i][j] != null)
-					row += world[i][j].toString()+" ";
+					row += world[i][j].toString() + " ";
 				else
 					row += "  ";
 			}
@@ -120,9 +159,9 @@ public class World {
 				return true;
 		return false;
 	}
-	
+
 	public boolean isThereGround(int i, int j) {
-		for (int z=0; z<grounds.size(); z++) 
+		for (int z = 0; z < grounds.size(); z++)
 			if (grounds.get(z).getI() == i && grounds.get(z).getJ() == j)
 				return true;
 		return false;

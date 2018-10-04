@@ -3,10 +3,14 @@ package it.unical.logic;
 public class Box extends AbstractObject {
 
 	World world;
+	
+	private int id;
+	private static int idCounter=0; //Id ad autoincremento.
 
 	public Box(int i, int j, World world) {
 		super(i, j);
 		this.world = world;
+		this.id=this.idCounter++;
 	}
 
 	public World getWorld() {
@@ -23,8 +27,14 @@ public class Box extends AbstractObject {
 
 	@Override
 	public String toString() {
-		// TODO Auto-generated method stub
 		return "BOX";
 	}
 
+	public int getId() {
+		return id;
+	}
+	
+	public void setId(int id) {
+		this.id = id;
+	}
 }
