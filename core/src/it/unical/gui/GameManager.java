@@ -35,7 +35,7 @@ import it.unical.mat.embasp.specializations.dlv2.desktop.DLV2DesktopService;
 public class GameManager implements Screen {
 
 	private Sokoban sokoban;
-
+	
 	private World world;
 	private Player player;
 	private boolean winner;
@@ -46,6 +46,8 @@ public class GameManager implements Screen {
 	private Skin skin;
 	private TextButton solver;
 	private TextButton undo;
+	private TextButton reset;
+	private TextButton backToMenu;
 	private Stage stage;
 
 	// EmbASP integration
@@ -60,6 +62,7 @@ public class GameManager implements Screen {
 		this.sokoban = sokoban;
 
 		world = new World(sokoban.getLivelloScelto());
+		
 		winner = false;
 		startDLV = false;
 		loadLevel();
@@ -69,6 +72,8 @@ public class GameManager implements Screen {
 
 		solver = new TextButton("SOLVE", skin);
 		undo = new TextButton("UNDO", skin);
+		reset = new TextButton("RESET", skin);
+		backToMenu = new TextButton("MENU'", skin);
 
 		solver.setPosition(605, 310);
 		solver.setWidth(150);
@@ -79,6 +84,16 @@ public class GameManager implements Screen {
 		undo.setWidth(150);
 		undo.setHeight(45);
 		undo.setColor(Color.CORAL);
+		
+		reset.setPosition(605, 240);
+		reset.setWidth(150);
+		reset.setHeight(45);
+		reset.setColor(Color.CORAL);
+		
+		backToMenu.setPosition(605, 50);
+		backToMenu.setWidth(150);
+		backToMenu.setHeight(45);
+		backToMenu.setColor(Color.CORAL);
 
 		undo.addListener(new InputListener() {
 			@Override
@@ -103,12 +118,41 @@ public class GameManager implements Screen {
 				return true;
 			}
 		});
+		
+		reset.addListener(new InputListener() {
+			@Override
+			public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+				System.out.println("RESET LISTENER");
+			
+				loadLevel();
+				winner=false;
+			}
+
+			@Override
+			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+				return true;
+			}
+		});
+		
+		backToMenu.addListener(new InputListener() {
+			@Override
+			public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+				sokoban.swap(2);	
+			}
+
+			@Override
+			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+				return true;
+			}
+		});
 
 		stage = new Stage(new ScreenViewport());
 		Gdx.input.setInputProcessor(stage);
 
 		stage.addActor(solver);
 		stage.addActor(undo);
+		stage.addActor(reset);
+		stage.addActor(backToMenu);
 
 		handler = new DesktopHandler(new DLV2DesktopService("lib/dlv2"));
 	}
@@ -125,13 +169,17 @@ public class GameManager implements Screen {
 	public void movePlayer(int direction) {
 
 		if (!winner) {
-
+			
 			player.move(direction);
-
+			
 			step++;
 			if (world.win()) {
 				winner = true;
-				return;
+				
+				if (sokoban.getLivelloScelto()<9)
+					sokoban.setLivelloScelto(sokoban.getLivelloScelto()+1);
+				
+				sokoban.swap(1);
 			}
 		}
 	}

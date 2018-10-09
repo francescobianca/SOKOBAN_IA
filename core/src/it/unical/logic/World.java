@@ -215,5 +215,9 @@ public class World {
 			return true;
 		return false;
 	}
+	
+	public ObjectGame[][] getWorld() {
+		return world;
+	}
 
 }
