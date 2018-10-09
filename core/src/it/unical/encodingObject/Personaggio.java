@@ -15,6 +15,10 @@ public class Personaggio {
 	@Param(2)
 	private int colonna;
 	
+	public Personaggio() {
+	
+	}
+	
 	public Personaggio(int s,int r,int c) {
 		this.step=s;
 		this.riga=r;

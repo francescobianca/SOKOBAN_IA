@@ -12,6 +12,9 @@ public class Muro {
 	@Param(1)
 	private int colonna;
 	
+	public Muro() {
+	
+	}
 	
 	public Muro(int r, int c) {
 		this.riga = r;

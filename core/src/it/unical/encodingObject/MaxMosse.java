@@ -8,6 +8,10 @@ public class MaxMosse {
 
 	@Param(0)
 	private int numero;
+	
+	public MaxMosse() {
+	
+	}
 
 	public MaxMosse(int numero) {
 		this.numero=numero;

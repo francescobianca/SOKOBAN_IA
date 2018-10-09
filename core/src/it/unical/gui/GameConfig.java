@@ -16,6 +16,16 @@ public class GameConfig {
 	public static final String backGroundImage = "Background.jpg";
 	public static final String menuImage = "menu.png";
 	public static final String levelsImage = "levels.png";
+	public static final String livelloSchermataGioco = "Livello.png";
+	public static final String livelloUnoImage = "level1.png";
+	public static final String livelloDueImage = "level2.png";
+	public static final String livelloTreImage = "level3.png";
+	public static final String livelloQuattroImage = "level4.png";
+	public static final String livelloCinqueImage = "level5.png";
+	public static final String livelloSeiImage = "level6.png";
+	public static final String livelloSetteImage = "level7.png";
+	public static final String livelloOttoImage = "level8.png";
+	public static final String livelloNoveImage = "level9.png";
 
 	public static final String SKIN = "level-plane/skin/level-plane-ui.json";
 

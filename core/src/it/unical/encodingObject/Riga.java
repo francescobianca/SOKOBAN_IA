@@ -8,6 +8,10 @@ public class Riga {
 	
 	@Param(0)
 	private int nriga;
+	
+	public Riga() {
+	
+	}
 
 	public Riga(int n) {
 		this.nriga=n;

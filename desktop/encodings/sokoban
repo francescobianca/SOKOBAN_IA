@@ -71,7 +71,7 @@ scatola(T+1,X,Y-1,Id):- sposto(T,Id),mossa(T,sinistra),scatola(T,X,Y,Id).
 %Check su raggiungimento di un obiettivo. Si raggiunge quando il scatola ci va sopra.
 
 raggiunto(Id) :- maxmosse(X), scatola(X,R,C,Id), obiettivo(R,C).
-:- scatola(_,_,Id), not raggiunto(Id).
+:- scatola(_,_,_,Id), not raggiunto(Id).
 
 % Incremento se non ho spostato.
 scatola(T+1,X,Y,Id) :- scatola(T,X,Y,Id),  nonsposto(T,Id),maxmosse(K),T<K.

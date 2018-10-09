@@ -12,6 +12,10 @@ public class Obiettivo {
 	@Param(1)
 	private int colonna;
 		
+	public Obiettivo() {
+	
+	}
+	
 	public Obiettivo(int r, int c) {
 		this.riga = r;
 		this.colonna = c;

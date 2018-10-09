@@ -1,14 +1,20 @@
 package it.unical.gui;
 
-import java.io.File;
 import java.util.List;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import it.unical.encodingObject.Scatola;
 import it.unical.logic.Box;
@@ -24,7 +30,6 @@ import it.unical.mat.embasp.languages.asp.ASPInputProgram;
 import it.unical.mat.embasp.languages.asp.AnswerSet;
 import it.unical.mat.embasp.languages.asp.AnswerSets;
 import it.unical.mat.embasp.platforms.desktop.DesktopHandler;
-import it.unical.mat.embasp.specializations.dlv2.DLV2AnswerSets;
 import it.unical.mat.embasp.specializations.dlv2.desktop.DLV2DesktopService;
 
 public class GameManager implements Screen {
@@ -38,6 +43,10 @@ public class GameManager implements Screen {
 	private int step = 0;
 
 	private Sprite sprite;
+	private Skin skin;
+	private TextButton solver;
+	private TextButton undo;
+	private Stage stage;
 
 	// EmbASP integration
 	private static Handler handler;
@@ -56,6 +65,50 @@ public class GameManager implements Screen {
 		loadLevel();
 
 		sprite = new Sprite(new TextureRegion(SplashScreen.loader.loadPlayerImage(), 0, 0, 64, 64));
+		skin = new Skin(Gdx.files.internal(GameConfig.SKIN));
+
+		solver = new TextButton("SOLVE", skin);
+		undo = new TextButton("UNDO", skin);
+
+		solver.setPosition(605, 310);
+		solver.setWidth(150);
+		solver.setHeight(45);
+		solver.setColor(Color.CORAL);
+
+		undo.setPosition(605, 380);
+		undo.setWidth(150);
+		undo.setHeight(45);
+		undo.setColor(Color.CORAL);
+
+		undo.addListener(new InputListener() {
+			@Override
+			public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+				System.out.println("UNDO LISTENER");
+			}
+
+			@Override
+			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+				return true;
+			}
+		});
+		
+		solver.addListener(new InputListener() {
+			@Override
+			public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+				System.out.println("SOLVER LISTENER");
+			}
+
+			@Override
+			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+				return true;
+			}
+		});
+
+		stage = new Stage(new ScreenViewport());
+		Gdx.input.setInputProcessor(stage);
+
+		stage.addActor(solver);
+		stage.addActor(undo);
 
 		handler = new DesktopHandler(new DLV2DesktopService("lib/dlv2"));
 	}
@@ -96,10 +149,12 @@ public class GameManager implements Screen {
 
 	}
 
+	@SuppressWarnings("static-access")
 	@Override
 	public void render(float delta) {
 		Gdx.gl.glClearColor(0.3f, 0.3f, 0.3f, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
 		sokoban.batch.begin();
 
 		for (int i = 0; i < 800; i += 64)
@@ -155,7 +210,32 @@ public class GameManager implements Screen {
 			sprite.draw(sokoban.batch);
 		}
 
+		// Riquadro opzioni
+		sokoban.batch.draw(SplashScreen.loader.loadLivelloSchermataGiocoImage(), 580, 520, 200, 60);
+
+		if (sokoban.getLivelloScelto() == 1)
+			sokoban.batch.draw(SplashScreen.loader.loadLivelloUnoImage(), 665, 450, 29, 56);
+		else if (sokoban.getLivelloScelto() == 2)
+			sokoban.batch.draw(SplashScreen.loader.loadLivelloDueImage(), 658, 450, 45, 57);
+		else if (sokoban.getLivelloScelto() == 3)
+			sokoban.batch.draw(SplashScreen.loader.loadLivelloTreImage(), 658, 450, 45, 57);
+		else if (sokoban.getLivelloScelto() == 4)
+			sokoban.batch.draw(SplashScreen.loader.loadLivelloQuattroImage(), 660, 450, 41, 47);
+		else if (sokoban.getLivelloScelto() == 5)
+			sokoban.batch.draw(SplashScreen.loader.loadLivelloCinqueImage(), 658, 450, 45, 57);
+		else if (sokoban.getLivelloScelto() == 6)
+			sokoban.batch.draw(SplashScreen.loader.loadLivelloSeiImage(), 658, 450, 45, 57);
+		else if (sokoban.getLivelloScelto() == 7)
+			sokoban.batch.draw(SplashScreen.loader.loadLivelloSetteImage(), 661, 450, 38, 57);
+		else if (sokoban.getLivelloScelto() == 8)
+			sokoban.batch.draw(SplashScreen.loader.loadLivelloOttoImage(), 658, 450, 45, 57);
+		else if (sokoban.getLivelloScelto() == 9)
+			sokoban.batch.draw(SplashScreen.loader.loadLivelloNoveImage(), 660, 450, 41, 57);
+
 		sokoban.batch.end();
+
+		stage.act();
+		stage.draw();
 
 		if (!startDLV) {
 			startDLV = true;
@@ -172,11 +252,12 @@ public class GameManager implements Screen {
 				try {
 					List<String> list = answerSet.getAnswerSet();
 					System.out.println(list.toString());
-					/*for (Object obj : answerSet.getAtoms())
+					for (Object obj : answerSet.getAtoms())
 						if (obj instanceof Scatola) {
-							Scatola s=(Scatola)obj;
-							System.out.println(s.getStep()+" "+s.getRiga()+" "+s.getColonna()+" "+s.getId());
-						}*/
+							Scatola s = (Scatola) obj;
+							System.out.println("Step: " + s.getStep() + " Riga: " + s.getRiga() + " Colonna: "
+									+ s.getColonna() + " IdScatola: " + s.getId());
+						}
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -206,7 +287,9 @@ public class GameManager implements Screen {
 
 	@Override
 	public void dispose() {
-
+		skin.dispose();
+		stage.clear();
+		stage.dispose();
 	}
 
 }

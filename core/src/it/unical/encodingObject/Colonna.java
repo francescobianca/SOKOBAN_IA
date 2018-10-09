@@ -8,6 +8,10 @@ public class Colonna {
 	
 	@Param(0)
 	private int ncolonna;
+	
+	public Colonna() {
+		
+	}
 
 	public Colonna(int ncolonna) {
 		this.ncolonna=ncolonna;

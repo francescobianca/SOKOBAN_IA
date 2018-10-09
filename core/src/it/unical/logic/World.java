@@ -13,7 +13,6 @@ import it.unical.encodingObject.Obiettivo;
 import it.unical.encodingObject.Personaggio;
 import it.unical.encodingObject.Riga;
 import it.unical.encodingObject.Scatola;
-import it.unical.gui.SplashScreen;
 import it.unical.mat.embasp.base.InputProgram;
 import it.unical.mat.embasp.languages.asp.ASPInputProgram;
 
@@ -116,7 +115,7 @@ public class World {
 		InputProgram input = new ASPInputProgram();
 		try {
 			
-			input.addObjectInput(new MaxMosse(6));
+			input.addObjectInput(new MaxMosse(3));
 			for(int i=0;i<numberRow;i++) {
 				input.addObjectInput(new Riga(i));
 				for(int j=0;j<numberColumn;j++) {

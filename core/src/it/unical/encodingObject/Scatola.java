@@ -17,6 +17,10 @@ public class Scatola {
 
 	@Param(3)
 	private int id;
+	
+	public Scatola() {
+	
+	}
 
 	public Scatola(int s, int r, int c, int id) {
 		this.step = s;

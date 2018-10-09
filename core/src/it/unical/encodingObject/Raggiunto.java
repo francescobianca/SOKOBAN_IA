@@ -9,6 +9,10 @@ public class Raggiunto {
 	@Param(0)
 	private int idScatola;
 	
+	public Raggiunto() {
+	
+	}
+	
 	public Raggiunto(int id) {
 		this.idScatola=id;
 	}

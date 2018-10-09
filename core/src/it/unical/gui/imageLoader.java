@@ -19,7 +19,17 @@ public class imageLoader {
 	private Texture backGroundImage;
 	private Texture menuImage;
 	private Texture levelImage;
-	
+	private Texture livelloSchermataGiocoImage;
+	private Texture livello1Image;
+	private Texture livello2Image;
+	private Texture livello3Image;
+	private Texture livello4Image;
+	private Texture livello5Image;
+	private Texture livello6Image;
+	private Texture livello7Image;
+	private Texture livello8Image;
+	private Texture livello9Image;
+
 	public imageLoader() {
 		splashImage = new Texture(GameConfig.splashImage);
 		boxImage = new Texture(GameConfig.boxImage);
@@ -35,6 +45,16 @@ public class imageLoader {
 		backGroundImage = new Texture(GameConfig.backGroundImage);
 		menuImage = new Texture(GameConfig.menuImage);
 		levelImage = new Texture(GameConfig.levelsImage);
+		livelloSchermataGiocoImage = new Texture(GameConfig.livelloSchermataGioco);
+		livello1Image = new Texture(GameConfig.livelloUnoImage);
+		livello2Image = new Texture(GameConfig.livelloDueImage);
+		livello3Image = new Texture(GameConfig.livelloTreImage);
+		livello4Image = new Texture(GameConfig.livelloQuattroImage);
+		livello5Image = new Texture(GameConfig.livelloCinqueImage);
+		livello6Image = new Texture(GameConfig.livelloSeiImage);
+		livello7Image = new Texture(GameConfig.livelloSetteImage);
+		livello8Image = new Texture(GameConfig.livelloOttoImage);
+		livello9Image = new Texture(GameConfig.livelloNoveImage);
 	}
 
 	public Texture loadSplashImage() {
@@ -80,11 +100,11 @@ public class imageLoader {
 	public Texture loadWallBigImage() {
 		return wallBigImage;
 	}
-	
+
 	public Texture loadBackGroundImage() {
 		return backGroundImage;
 	}
-	
+
 	public Texture loadMenuImage() {
 		return menuImage;
 	}
@@ -92,5 +112,45 @@ public class imageLoader {
 	public Texture loadLevelsImage() {
 		return levelImage;
 	}
-	
+
+	public Texture loadLivelloSchermataGiocoImage() {
+		return livelloSchermataGiocoImage;
+	}
+
+	public Texture loadLivelloUnoImage() {
+		return livello1Image;
+	}
+
+	public Texture loadLivelloDueImage() {
+		return livello2Image;
+	}
+
+	public Texture loadLivelloTreImage() {
+		return livello3Image;
+	}
+
+	public Texture loadLivelloQuattroImage() {
+		return livello4Image;
+	}
+
+	public Texture loadLivelloCinqueImage() {
+		return livello5Image;
+	}
+
+	public Texture loadLivelloSeiImage() {
+		return livello6Image;
+	}
+
+	public Texture loadLivelloSetteImage() {
+		return livello7Image;
+	}
+
+	public Texture loadLivelloOttoImage() {
+		return livello8Image;
+	}
+
+	public Texture loadLivelloNoveImage() {
+		return livello9Image;
+	}
+
 }
