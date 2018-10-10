@@ -4,7 +4,7 @@ import it.unical.mat.embasp.languages.Id;
 import it.unical.mat.embasp.languages.Param;
 
 @Id("scatola")
-public class Scatola {
+public class Scatola implements Comparable<Scatola>{
 
 	@Param(0)
 	private int step;
@@ -59,5 +59,14 @@ public class Scatola {
 	
 	public void setId(int id) {
 		this.id = id;
+	}
+
+	@Override
+	public int compareTo(Scatola s) {
+		if(this.getStep() < s.getStep())
+			return -1;
+		if(this.getStep() > s.getStep())
+			return 1;
+		return 0;
 	}
 }

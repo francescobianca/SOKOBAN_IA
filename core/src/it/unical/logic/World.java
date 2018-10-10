@@ -29,6 +29,8 @@ public class World {
 
 	private Player player;
 
+	private int maxMosse;
+	
 	private final int livello;
 
 	public World(final int livello) {
@@ -37,6 +39,14 @@ public class World {
 
 	public ObjectGame getObject(int i, int j) {
 		return world[i][j];
+	}
+	
+	public void setMaxMosse(int maxMosse) {
+		this.maxMosse = maxMosse;
+	}
+	
+	public int getMaxMosse() {
+		return maxMosse;
 	}
 
 	public void loadMatrix() {// File file) {
@@ -50,7 +60,7 @@ public class World {
 			BufferedReader b = new BufferedReader(filein);
 			this.numberRow = Integer.parseInt(b.readLine());
 			this.numberColumn = Integer.parseInt(b.readLine());
-
+			
 			world = new ObjectGame[numberRow][numberColumn];
 			goals = new ArrayList<Goal>();
 			boxs = new ArrayList<Box>();
@@ -100,7 +110,7 @@ public class World {
 				}
 
 			} while (next != -1);
-
+			Box.resetIdCounter();
 			filein.close();
 			b.close();
 
@@ -115,7 +125,7 @@ public class World {
 		InputProgram input = new ASPInputProgram();
 		try {
 			
-			input.addObjectInput(new MaxMosse(3));
+			input.addObjectInput(new MaxMosse(this.maxMosse));
 			for(int i=0;i<numberRow;i++) {
 				input.addObjectInput(new Riga(i));
 				for(int j=0;j<numberColumn;j++) {
@@ -127,10 +137,11 @@ public class World {
 				if (world[i][j] instanceof Box) {
 					Box b=(Box)world[i][j];
 					input.addObjectInput(new Scatola(0, i, j,b.getId()));
-					System.out.println(b.getId());
-				}if (world[i][j] instanceof Wall)
+				}
+				if (world[i][j] instanceof Wall)
 					input.addObjectInput(new Muro(i, j));
 				}
+			
 			}
 			
 		}catch (Exception e) {

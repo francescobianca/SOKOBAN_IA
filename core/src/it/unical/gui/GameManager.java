@@ -1,6 +1,7 @@
 package it.unical.gui;
 
-import java.util.List;
+import java.util.ArrayList;
+import java.util.Collections;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
@@ -16,6 +17,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
+import it.unical.encodingObject.Mossa;
 import it.unical.encodingObject.Scatola;
 import it.unical.logic.Box;
 import it.unical.logic.Goal;
@@ -25,6 +27,7 @@ import it.unical.logic.Wall;
 import it.unical.logic.World;
 import it.unical.mat.embasp.base.Handler;
 import it.unical.mat.embasp.base.InputProgram;
+import it.unical.mat.embasp.base.OptionDescriptor;
 import it.unical.mat.embasp.base.Output;
 import it.unical.mat.embasp.languages.asp.ASPInputProgram;
 import it.unical.mat.embasp.languages.asp.AnswerSet;
@@ -35,12 +38,16 @@ import it.unical.mat.embasp.specializations.dlv2.desktop.DLV2DesktopService;
 public class GameManager implements Screen {
 
 	private Sokoban sokoban;
-	
+
 	private World world;
 	private Player player;
 	private boolean winner;
 	private boolean startDLV;
 	private int step = 0;
+
+	private final int NUMERO_MOSSE_PARTENZA = 3;
+
+	private int minNumeroMosse = NUMERO_MOSSE_PARTENZA;
 
 	private Sprite sprite;
 	private Skin skin;
@@ -57,15 +64,12 @@ public class GameManager implements Screen {
 	private InputProgram facts;
 	private InputProgram encoding;
 
+	private ArrayList<Scatola> soluzioneScatole;
+	private ArrayList<Mossa> soluzioneMosse;
+
 	public GameManager(final Sokoban sokoban) {
 		// TODO Auto-generated constructor stub
 		this.sokoban = sokoban;
-
-		world = new World(sokoban.getLivelloScelto());
-		
-		winner = false;
-		startDLV = false;
-		loadLevel();
 
 		sprite = new Sprite(new TextureRegion(SplashScreen.loader.loadPlayerImage(), 0, 0, 64, 64));
 		skin = new Skin(Gdx.files.internal(GameConfig.SKIN));
@@ -74,6 +78,9 @@ public class GameManager implements Screen {
 		undo = new TextButton("UNDO", skin);
 		reset = new TextButton("RESET", skin);
 		backToMenu = new TextButton("MENU'", skin);
+
+		soluzioneScatole = new ArrayList<Scatola>();
+		soluzioneMosse = new ArrayList<Mossa>();
 
 		solver.setPosition(605, 310);
 		solver.setWidth(150);
@@ -84,12 +91,12 @@ public class GameManager implements Screen {
 		undo.setWidth(150);
 		undo.setHeight(45);
 		undo.setColor(Color.CORAL);
-		
+
 		reset.setPosition(605, 240);
 		reset.setWidth(150);
 		reset.setHeight(45);
 		reset.setColor(Color.CORAL);
-		
+
 		backToMenu.setPosition(605, 50);
 		backToMenu.setWidth(150);
 		backToMenu.setHeight(45);
@@ -106,11 +113,12 @@ public class GameManager implements Screen {
 				return true;
 			}
 		});
-		
+
 		solver.addListener(new InputListener() {
 			@Override
 			public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
 				System.out.println("SOLVER LISTENER");
+				startDLV = true;
 			}
 
 			@Override
@@ -118,14 +126,14 @@ public class GameManager implements Screen {
 				return true;
 			}
 		});
-		
+
 		reset.addListener(new InputListener() {
 			@Override
 			public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
 				System.out.println("RESET LISTENER");
-			
+
 				loadLevel();
-				winner=false;
+				winner = false;
 			}
 
 			@Override
@@ -133,11 +141,12 @@ public class GameManager implements Screen {
 				return true;
 			}
 		});
-		
+
 		backToMenu.addListener(new InputListener() {
 			@Override
 			public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-				sokoban.swap(2);	
+				sokoban.swap(2);
+				startDLV = false;
 			}
 
 			@Override
@@ -169,16 +178,16 @@ public class GameManager implements Screen {
 	public void movePlayer(int direction) {
 
 		if (!winner) {
-			
+
 			player.move(direction);
-			
+
 			step++;
 			if (world.win()) {
 				winner = true;
-				
-				if (sokoban.getLivelloScelto()<9)
-					sokoban.setLivelloScelto(sokoban.getLivelloScelto()+1);
-				
+
+				if (sokoban.getLivelloScelto() < 9)
+					sokoban.setLivelloScelto(sokoban.getLivelloScelto() + 1);
+
 				sokoban.swap(1);
 			}
 		}
@@ -194,7 +203,14 @@ public class GameManager implements Screen {
 
 	@Override
 	public void show() {
-
+		minNumeroMosse = NUMERO_MOSSE_PARTENZA;
+		world = new World(sokoban.getLivelloScelto());
+		world.setMaxMosse(minNumeroMosse);
+		winner = false;
+		startDLV = false;
+		soluzioneScatole.clear();
+		soluzioneMosse.clear();
+		loadLevel();
 	}
 
 	@SuppressWarnings("static-access")
@@ -285,31 +301,60 @@ public class GameManager implements Screen {
 		stage.act();
 		stage.draw();
 
-		if (!startDLV) {
-			startDLV = true;
+		if (startDLV) {
+			startDLV = false;
+			boolean risolto = false;
 
-			facts = world.loadDLVFacts();
-			handler.addProgram(facts);
-			encoding = new ASPInputProgram();
-			encoding.addFilesPath(encondingPath + encondingName);
-			handler.addProgram(encoding);
-			Output output = handler.startSync();
-			AnswerSets answerSets = (AnswerSets) output;
+			while (!risolto) {
+				// setto al world il minimo numero di mosse del gameManager
+				world.setMaxMosse(minNumeroMosse);
+				facts = world.loadDLVFacts();
+				handler.addProgram(facts);
+				encoding = new ASPInputProgram();
+				encoding.addFilesPath(encondingPath + encondingName);
+				handler.addProgram(encoding);
 
-			for (AnswerSet answerSet : answerSets.getAnswersets()) {
-				try {
-					List<String> list = answerSet.getAnswerSet();
-					System.out.println(list.toString());
-					for (Object obj : answerSet.getAtoms())
-						if (obj instanceof Scatola) {
-							Scatola s = (Scatola) obj;
-							System.out.println("Step: " + s.getStep() + " Riga: " + s.getRiga() + " Colonna: "
-									+ s.getColonna() + " IdScatola: " + s.getId());
+				// handler.addOption(new OptionDescriptor("-n=0 "));
+				// handler.addOption(new OptionDescriptor("--filter=scatola/4,mossa/3 "));
+				Output output = handler.startSync();
+				AnswerSets answerSets = (AnswerSets) output;
+				System.out.println(answerSets.getAnswersets().size());
+				for (AnswerSet answerSet : answerSets.getAnswersets()) {
+					try {
+						
+						for (Object obj : answerSet.getAtoms()) {	
+							System.out.println(obj.getClass().getName());
+							if (obj instanceof Scatola) {
+								Scatola s = (Scatola) obj;
+								soluzioneScatole.add(s);
+							}
+							if (obj instanceof Mossa) {
+								Mossa m = (Mossa) obj;
+								soluzioneMosse.add(m);
+							}
 						}
-				} catch (Exception e) {
-					e.printStackTrace();
+
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					// Sono riuscito a risolvere il livello ed esco dal while
+					System.out.println("Risolto con " + world.getMaxMosse() + " mosse");
+					risolto = true;
 				}
+				// Non sono riuscito a risolvere il livello e quindi incremento il numero minimo
+				// di mosse
+				if (!risolto)
+					this.minNumeroMosse++;
 			}
+			Collections.sort(soluzioneScatole);
+			//Collections.sort(soluzioneMosse);
+			for (int i = 0; i < soluzioneMosse.size(); i++) {
+				Scatola s = soluzioneScatole.get(i);
+				Mossa m = soluzioneMosse.get(i);
+				System.out.println("Step: " + s.getStep() + " Riga: " + s.getRiga() + " Colonna: " + s.getColonna()
+						+ " IdScatola: " + s.getId() + " direzione: " + m.getDirezione());
+			}
+
 		}
 	}
 

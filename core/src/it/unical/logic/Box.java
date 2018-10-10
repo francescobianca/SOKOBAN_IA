@@ -37,4 +37,8 @@ public class Box extends AbstractObject {
 	public void setId(int id) {
 		this.id = id;
 	}
+	
+	public static void resetIdCounter() {
+		idCounter=0;
+	}
 }

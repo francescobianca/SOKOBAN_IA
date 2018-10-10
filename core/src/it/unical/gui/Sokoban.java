@@ -37,7 +37,7 @@ public class Sokoban extends Game {
 			setScreen(splashScreen);
 			break;
 		case 1:
-			//if (gameManager == null)
+			if (gameManager == null)
 				gameManager = new GameManager(this); //Se non lo ricreo sempre non funziona il back al menù
 			setScreen(gameManager);
 			break;
