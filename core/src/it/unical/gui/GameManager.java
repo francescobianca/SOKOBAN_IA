@@ -29,7 +29,10 @@ import it.unical.mat.embasp.base.Handler;
 import it.unical.mat.embasp.base.InputProgram;
 import it.unical.mat.embasp.base.OptionDescriptor;
 import it.unical.mat.embasp.base.Output;
+import it.unical.mat.embasp.languages.IllegalAnnotationException;
+import it.unical.mat.embasp.languages.ObjectNotValidException;
 import it.unical.mat.embasp.languages.asp.ASPInputProgram;
+import it.unical.mat.embasp.languages.asp.ASPMapper;
 import it.unical.mat.embasp.languages.asp.AnswerSet;
 import it.unical.mat.embasp.languages.asp.AnswerSets;
 import it.unical.mat.embasp.platforms.desktop.DesktopHandler;
@@ -45,7 +48,7 @@ public class GameManager implements Screen {
 	private boolean startDLV;
 	private int step = 0;
 
-	private final int NUMERO_MOSSE_PARTENZA = 3;
+	private final int NUMERO_MOSSE_PARTENZA = 1;
 
 	private int minNumeroMosse = NUMERO_MOSSE_PARTENZA;
 
@@ -164,6 +167,15 @@ public class GameManager implements Screen {
 		stage.addActor(backToMenu);
 
 		handler = new DesktopHandler(new DLV2DesktopService("lib/dlv2"));
+		try {
+			ASPMapper.getInstance().registerClass(Mossa.class);
+		} catch (ObjectNotValidException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAnnotationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public void loadLevel() {
@@ -315,15 +327,12 @@ public class GameManager implements Screen {
 				handler.addProgram(encoding);
 
 				// handler.addOption(new OptionDescriptor("-n=0 "));
-				// handler.addOption(new OptionDescriptor("--filter=scatola/4,mossa/3 "));
+				handler.addOption(new OptionDescriptor("--filter=scatola/4,mossa/3 "));
 				Output output = handler.startSync();
 				AnswerSets answerSets = (AnswerSets) output;
-				System.out.println(answerSets.getAnswersets().size());
 				for (AnswerSet answerSet : answerSets.getAnswersets()) {
 					try {
-						
-						for (Object obj : answerSet.getAtoms()) {	
-							System.out.println(obj.getClass().getName());
+						for (Object obj : answerSet.getAtoms()) {
 							if (obj instanceof Scatola) {
 								Scatola s = (Scatola) obj;
 								soluzioneScatole.add(s);
@@ -346,13 +355,11 @@ public class GameManager implements Screen {
 				if (!risolto)
 					this.minNumeroMosse++;
 			}
-			Collections.sort(soluzioneScatole);
-			//Collections.sort(soluzioneMosse);
+			// Collections.sort(soluzioneScatole);
+			Collections.sort(soluzioneMosse);
 			for (int i = 0; i < soluzioneMosse.size(); i++) {
-				Scatola s = soluzioneScatole.get(i);
 				Mossa m = soluzioneMosse.get(i);
-				System.out.println("Step: " + s.getStep() + " Riga: " + s.getRiga() + " Colonna: " + s.getColonna()
-						+ " IdScatola: " + s.getId() + " direzione: " + m.getDirezione());
+				System.out.println("Step: " + m.getStep() + " IdScatola: " + m.getIdBox() + " direzione: " + m.getDirezione());
 			}
 
 		}
@@ -384,5 +391,36 @@ public class GameManager implements Screen {
 		stage.clear();
 		stage.dispose();
 	}
-
+/*
+	public void prova() {
+		for(int i=0;i<soluzioneMosse.size();i++) {
+			Mossa m=soluzioneMosse.get(i);
+			
+			Player p=world.getPlayer();
+			Box b=null;
+			for(Box b1:world.getBoxs()) {
+				if(b1.getId()==m.getIdBox())
+					b=b1;
+			}
+			int newX=0;
+			int newY=0;
+			if(m.getDirezione().equals("sopra")) {
+				newX=b.getI()+1;
+				newY=b.getJ();
+			}else if(m.getDirezione().equals("sotto")) {
+				newX=b.getI()-1;
+				newY=b.getJ();
+			}else if(m.getDirezione().equals("sinistra")) {
+				newX=b.getI();
+				newY=b.getJ()+1;
+			}else if(m.getDirezione().equals("destra")) {
+				newX=b.getI();
+				newY=b.getJ()-1;
+			}
+			
+			//Calcolo percorso minimo tra p e (newX,newY)
+		
+		}
+	}*/
+	
 }

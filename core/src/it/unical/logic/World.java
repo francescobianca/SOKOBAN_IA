@@ -212,6 +212,10 @@ public class World {
 		return goals;
 	}
 
+	public ArrayList<Box> getBoxs() {
+		return boxs;
+	}
+	
 	public boolean win() {
 		int boxWin = 0;
 

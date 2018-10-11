@@ -4,7 +4,7 @@ import it.unical.mat.embasp.languages.Id;
 import it.unical.mat.embasp.languages.Param;
 
 @Id("mossa")
-public class Mossa {
+public class Mossa implements Comparable<Mossa>{
 
 	@Param(0)
 	private int step;
@@ -47,5 +47,14 @@ public class Mossa {
 
 	public void setIdBox(int idBox) {
 		this.idBox = idBox;
+	}
+
+	@Override
+	public int compareTo(Mossa m) {
+		if(this.getStep() < m.getStep())
+			return -1;
+		if(this.getStep() > m.getStep())
+			return 1;
+		return 0;
 	}
 }
