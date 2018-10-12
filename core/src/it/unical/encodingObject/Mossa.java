@@ -48,6 +48,11 @@ public class Mossa implements Comparable<Mossa>{
 	public void setIdBox(int idBox) {
 		this.idBox = idBox;
 	}
+	
+	@Override
+	public String toString() {
+		return "Step: "+step+" Direzione: "+direzione+" idBox: "+idBox;
+	}
 
 	@Override
 	public int compareTo(Mossa m) {

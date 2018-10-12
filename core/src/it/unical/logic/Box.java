@@ -18,7 +18,7 @@ public class Box extends AbstractObject {
 	}
 
 	public boolean iAmMovable(int i, int j) {
-		if (world.getObject(i, j) instanceof Wall || world.getObject(i, j) instanceof Box || i < 0
+		if (world.isThereBox(i, j) || world.isThereWall(i, j) || i < 0
 				|| i >= world.getNumberRow() || j < 0 || j >= world.getNumberColumn())
 			return false;
 
@@ -27,7 +27,7 @@ public class Box extends AbstractObject {
 
 	@Override
 	public String toString() {
-		return "BOX";
+		return "Id: "+this.id+" "+this.getI()+" "+this.getJ();
 	}
 
 	public int getId() {

@@ -2,6 +2,7 @@ package it.unical.gui;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
@@ -70,8 +71,14 @@ public class GameManager implements Screen {
 	private ArrayList<Scatola> soluzioneScatole;
 	private ArrayList<Mossa> soluzioneMosse;
 
+	// gestione mosse
+	private final float FREQUENZA_AGGIORNAMENTO = 1.0f;
+	private LinkedList<String> listaStep;
+	private int indiceStep;
+	private int indiceSoluzioneMosse;
+
 	public GameManager(final Sokoban sokoban) {
-		// TODO Auto-generated constructor stub
+		// TODO Auto-generated construtor stub
 		this.sokoban = sokoban;
 
 		sprite = new Sprite(new TextureRegion(SplashScreen.loader.loadPlayerImage(), 0, 0, 64, 64));
@@ -167,6 +174,8 @@ public class GameManager implements Screen {
 		stage.addActor(backToMenu);
 
 		handler = new DesktopHandler(new DLV2DesktopService("lib/dlv2"));
+		encoding = new ASPInputProgram();
+		encoding.addFilesPath(encondingPath + encondingName);
 		try {
 			ASPMapper.getInstance().registerClass(Mossa.class);
 		} catch (ObjectNotValidException e) {
@@ -181,10 +190,7 @@ public class GameManager implements Screen {
 	public void loadLevel() {
 		world.loadMatrix();
 		player = world.getPlayer();
-	}
-
-	public void removeLevel() {
-
+		world.print();
 	}
 
 	public void movePlayer(int direction) {
@@ -215,15 +221,24 @@ public class GameManager implements Screen {
 
 	@Override
 	public void show() {
+		if (listaStep == null)
+			listaStep = new LinkedList<String>();
+		indiceSoluzioneMosse = 0;
+		listaStep.clear();
+		soluzioneScatole.clear();
+		soluzioneMosse.clear();
+		
 		minNumeroMosse = NUMERO_MOSSE_PARTENZA;
 		world = new World(sokoban.getLivelloScelto());
 		world.setMaxMosse(minNumeroMosse);
+		loadLevel();
+		world.printBox();
 		winner = false;
 		startDLV = false;
-		soluzioneScatole.clear();
-		soluzioneMosse.clear();
-		loadLevel();
+		handler.removeAll();
 	}
+
+	private float attesa = 0;
 
 	@SuppressWarnings("static-access")
 	@Override
@@ -232,6 +247,18 @@ public class GameManager implements Screen {
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
 		sokoban.batch.begin();
+
+		attesa += delta;
+		if (attesa >= FREQUENZA_AGGIORNAMENTO) {
+			if (indiceStep < listaStep.size()) {
+				attesa = 0;
+				spostaPlayerDLV();
+				indiceStep++;
+			} else {
+				if (indiceSoluzioneMosse < soluzioneMosse.size())
+					calcolaStep();
+			}
+		}
 
 		for (int i = 0; i < 800; i += 64)
 			for (int j = 0; j < 600; j += 64)
@@ -243,30 +270,35 @@ public class GameManager implements Screen {
 			sokoban.batch.draw(SplashScreen.loader.loadGoalImage(), g.getJ() * 64, maxI - (g.getI() * 64), 64, 64);
 		}
 
+		for (Box b : world.getBoxs()) {
+			sokoban.batch.draw(SplashScreen.loader.loadBoxImage(), b.getJ() * 64, maxI - (b.getI() * 64), 64, 64);
+		}
+
 		for (int i = 0; i < world.getNumberRow(); i++) {
 			for (int j = 0; j < world.getNumberColumn(); j++) {
 
 				ObjectGame tmp = world.getObject(i, j);
-				if (tmp instanceof Player) {
-					// sokoban.batch.draw(SplashScreen.loader.loadPlayerImage(),j*64,maxI,64,64);
-					sprite.setPosition(j * 64, maxI);
-					// sprite.draw(sokoban.batch);
-					// sprite.setRegion(0, 0, 64, 64);
-					sprite.draw(sokoban.batch);
-				}
+				/*
+				 * if (tmp instanceof Player) { //
+				 * sokoban.batch.draw(SplashScreen.loader.loadPlayerImage(),j*64,maxI,64,64);
+				 * sprite.setPosition(j * 64, maxI); // sprite.draw(sokoban.batch); //
+				 * sprite.setRegion(0, 0, 64, 64); sprite.draw(sokoban.batch); }
+				 */
 				/*
 				 * if (tmp instanceof Goal)
 				 * sokoban.batch.draw(SplashScreen.loader.loadGoalImage(),j*64,maxI,64,64);
 				 */
-				if (tmp instanceof Box)
-					sokoban.batch.draw(SplashScreen.loader.loadBoxImage(), j * 64, maxI, 64, 64);
+				// if (tmp instanceof Ground)
+				// sokoban.batch.draw(SplashScreen.loader.loadBoxImage(), j * 64, maxI, 64, 64);
 				if (tmp instanceof Wall)
-					sokoban.batch.draw(SplashScreen.loader.loadWallImage(), j * 64, maxI, 64, 64);
-
+					sokoban.batch.draw(SplashScreen.loader.loadWallImage(), j * 64, maxI - (i * 64), 64, 64);
 			}
 
-			maxI -= 64;
+			// maxI -= 64;
 		}
+
+		sprite.setPosition(world.getPlayer().getJ() * 64, maxI - (world.getPlayer().getI() * 64));
+		sprite.draw(sokoban.batch);
 
 		if (Gdx.input.isKeyJustPressed(Keys.UP)) {
 			movePlayer(player.UP);
@@ -316,14 +348,12 @@ public class GameManager implements Screen {
 		if (startDLV) {
 			startDLV = false;
 			boolean risolto = false;
-
+			
 			while (!risolto) {
 				// setto al world il minimo numero di mosse del gameManager
 				world.setMaxMosse(minNumeroMosse);
 				facts = world.loadDLVFacts();
 				handler.addProgram(facts);
-				encoding = new ASPInputProgram();
-				encoding.addFilesPath(encondingPath + encondingName);
 				handler.addProgram(encoding);
 
 				// handler.addOption(new OptionDescriptor("-n=0 "));
@@ -352,16 +382,19 @@ public class GameManager implements Screen {
 				}
 				// Non sono riuscito a risolvere il livello e quindi incremento il numero minimo
 				// di mosse
-				if (!risolto)
+				if (!risolto) {
 					this.minNumeroMosse++;
+					handler.removeAll();
+				}
 			}
 			// Collections.sort(soluzioneScatole);
 			Collections.sort(soluzioneMosse);
 			for (int i = 0; i < soluzioneMosse.size(); i++) {
 				Mossa m = soluzioneMosse.get(i);
-				System.out.println("Step: " + m.getStep() + " IdScatola: " + m.getIdBox() + " direzione: " + m.getDirezione());
+				System.out.println(
+						"Step: " + m.getStep() + " IdScatola: " + m.getIdBox() + " direzione: " + m.getDirezione());
 			}
-
+			indiceStep=0;
 		}
 	}
 
@@ -391,36 +424,62 @@ public class GameManager implements Screen {
 		stage.clear();
 		stage.dispose();
 	}
-/*
-	public void prova() {
-		for(int i=0;i<soluzioneMosse.size();i++) {
-			Mossa m=soluzioneMosse.get(i);
-			
-			Player p=world.getPlayer();
-			Box b=null;
-			for(Box b1:world.getBoxs()) {
-				if(b1.getId()==m.getIdBox())
-					b=b1;
-			}
-			int newX=0;
-			int newY=0;
-			if(m.getDirezione().equals("sopra")) {
-				newX=b.getI()+1;
-				newY=b.getJ();
-			}else if(m.getDirezione().equals("sotto")) {
-				newX=b.getI()-1;
-				newY=b.getJ();
-			}else if(m.getDirezione().equals("sinistra")) {
-				newX=b.getI();
-				newY=b.getJ()+1;
-			}else if(m.getDirezione().equals("destra")) {
-				newX=b.getI();
-				newY=b.getJ()-1;
-			}
-			
-			//Calcolo percorso minimo tra p e (newX,newY)
-		
+
+	public void calcolaStep() {
+		System.out.println("----------------------------------------");
+		Mossa m = soluzioneMosse.get(indiceSoluzioneMosse);
+		Box b = null;
+
+		for (Box b1 : world.getBoxs()) {
+			if (b1.getId() == m.getIdBox())
+				b = b1;
 		}
-	}*/
-	
+		int newI = 0;
+		int newJ = 0;
+		if (m.getDirezione().equals("sopra")) {
+			newI = b.getI() + 1;
+			newJ = b.getJ();
+		} else if (m.getDirezione().equals("sotto")) {
+			newI = b.getI() - 1;
+			newJ = b.getJ();
+		} else if (m.getDirezione().equals("sinistra")) {
+			newI = b.getI();
+			newJ = b.getJ() + 1;
+		} else if (m.getDirezione().equals("destra")) {
+			newI = b.getI();
+			newJ = b.getJ() - 1;
+		}
+		System.out.println(player.getI() + " " + player.getJ());
+		System.out.println(newI);
+		System.out.println(newJ);
+		CalcolaPercorso calcola = CalcolaPercorso.getIstance();
+		LinkedList<String> movimenti = new LinkedList<String>();
+		int dist = calcola.restituisciPercorso(movimenti, world, this.player, newI, newJ);
+		System.out.println(movimenti.toString() + " " + dist);
+		if (dist != 0) {
+			this.listaStep.addAll(movimenti);
+			this.listaStep.add(m.getDirezione());
+		}else {
+			System.out.println("Non sono riuscito a trovare il percorso da "+player.getI()+", "+player.getJ());
+			System.out.println("a "+newI+", "+newJ);
+		}
+		System.out.println(listaStep.toString());
+		indiceSoluzioneMosse++;
+	}
+
+	public void spostaPlayerDLV() {
+		if (listaStep.get(indiceStep).equals("sopra")) {
+			movePlayer(player.UP);
+			sprite.setRegion(128, 0, 64, 64);
+		} else if (listaStep.get(indiceStep).equals("sotto")) {
+			movePlayer(player.DOWN);
+			sprite.setRegion(0, 0, 64, 64);
+		} else if (listaStep.get(indiceStep).equals("sinistra")) {
+			movePlayer(player.LEFT);
+			sprite.setRegion(64, 0, 64, 64);
+		} else if (listaStep.get(indiceStep).equals("destra")) {
+			movePlayer(player.RIGHT);
+			sprite.setRegion(192, 0, 64, 64);
+		}
+	}
 }

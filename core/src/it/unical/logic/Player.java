@@ -19,9 +19,9 @@ public class Player extends AbstractObject {
 
 		case UP:
 			if (canMove(positionI - 1, positionJ)) {
-				
 				if (isThereBox(positionI - 1, positionJ)) {
-					Box currentBox = (Box) world.getObject(positionI - 1, positionJ);
+				Box currentBox=world.getBox(positionI-1,positionJ);
+				//	Box currentBox = (Box) world.getObject(positionI - 1, positionJ);
 					if (currentBox.iAmMovable(positionI - 2, positionJ))
 						world.movePlayerAndBox(positionI, positionJ, currentBox.getI(), currentBox.getJ(),
 								positionI - 2, positionJ);
@@ -33,7 +33,8 @@ public class Player extends AbstractObject {
 		case DOWN:
 			if (canMove(positionI + 1, positionJ)) {
 				if (isThereBox(positionI + 1, positionJ)) {
-					Box currentBox = (Box) world.getObject(positionI + 1, positionJ);
+					Box currentBox=world.getBox(positionI+1,positionJ);
+					//Box currentBox = (Box) world.getObject(positionI + 1, positionJ);
 					if (currentBox.iAmMovable(positionI + 2, positionJ))
 						world.movePlayerAndBox(positionI, positionJ, currentBox.getI(), currentBox.getJ(),
 								positionI + 2, positionJ);
@@ -45,7 +46,8 @@ public class Player extends AbstractObject {
 		case RIGHT:
 			if (canMove(positionI, positionJ + 1)) {
 				if (isThereBox(positionI, positionJ + 1)) {
-					Box currentBox = (Box) world.getObject(positionI, positionJ + 1);
+					Box currentBox=world.getBox(positionI,positionJ+1);
+					//Box currentBox = (Box) world.getObject(positionI, positionJ + 1);
 					if (currentBox.iAmMovable(positionI, positionJ + 2))
 						world.movePlayerAndBox(positionI, positionJ, currentBox.getI(), currentBox.getJ(), positionI,
 								positionJ + 2);
@@ -57,7 +59,8 @@ public class Player extends AbstractObject {
 		case LEFT:
 			if (canMove(positionI, positionJ - 1)) {
 				if (isThereBox(positionI, positionJ - 1)) {
-					Box currentBox = (Box) world.getObject(positionI, positionJ - 1);
+					Box currentBox=world.getBox(positionI,positionJ-1);
+					//Box currentBox = (Box) world.getObject(positionI, positionJ - 1);
 					if (currentBox.iAmMovable(positionI, positionJ - 2))
 						world.movePlayerAndBox(positionI, positionJ, currentBox.getI(), currentBox.getJ(), positionI,
 								positionJ - 2);
@@ -70,15 +73,21 @@ public class Player extends AbstractObject {
 	}
 
 	public boolean isThereBox(int i, int j) {
-		if (world.getObject(i, j) instanceof Box)
-			return true;
+		for(Box b:world.getBoxs()) {
+			if(b.getI()==i && b.getJ()==j)
+				return true;
+		}
 		return false;
+	/*	if (world.getObject(i, j) instanceof Box)
+			return true;
+		return false;*/
 	}
 
 	public boolean canMove(int i, int j) {
-		if (world.getObject(i, j) instanceof Wall || i < 0 || i >= world.getNumberRow() || j < 0
-				|| j >= world.getNumberColumn())
+		if ((world.isThereWall(i, j)) || i < 0 || i >= world.getNumberRow() || j < 0
+				|| j >= world.getNumberColumn()) 
 			return false;
+		
 		return true;
 	}
 
