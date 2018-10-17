@@ -79,3 +79,6 @@ scatola(T+1,X,Y,Id) :- scatola(T,X,Y,Id),  nonsposto(T,Id),maxmosse(K),T<K.
 %ottimizzazione --> direzioni opposte. Non fare destra/sinistra oppure sopra/sotto un turno dopo l'altro. 
 mossaErrata:- sposto(T,Id),sposto(T+1,Id), mossa(T,sopra,Id),mossa(T+1,sotto,Id).
 mossaErrata:- sposto(T,Id),sposto(T+1,Id), mossa(T,destra,Id),mossa(T+1,sinistra,Id).
+
+%pago se tra due mosse al tempo t e t1 sullo stesso box ho qualche mossa su un box diverso al tempo t2 con t<t2<t1
+:~ mossa(T,_,B), mossa(T2,_,B1), mossa(T1,_,B), T<T2, T2<T1, B!=B1. [1@1,T,T1,T2]
