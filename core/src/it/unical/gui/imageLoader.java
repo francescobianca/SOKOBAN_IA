@@ -29,6 +29,7 @@ public class imageLoader {
 	private Texture livello7Image;
 	private Texture livello8Image;
 	private Texture livello9Image;
+	private Texture winImage;
 
 	public imageLoader() {
 		splashImage = new Texture(GameConfig.splashImage);
@@ -55,6 +56,7 @@ public class imageLoader {
 		livello7Image = new Texture(GameConfig.livelloSetteImage);
 		livello8Image = new Texture(GameConfig.livelloOttoImage);
 		livello9Image = new Texture(GameConfig.livelloNoveImage);
+		winImage = new Texture(GameConfig.winImage);
 	}
 
 	public Texture loadSplashImage() {
@@ -151,6 +153,10 @@ public class imageLoader {
 
 	public Texture loadLivelloNoveImage() {
 		return livello9Image;
+	}
+
+	public Texture loadWinImage() {
+		return winImage;
 	}
 
 }

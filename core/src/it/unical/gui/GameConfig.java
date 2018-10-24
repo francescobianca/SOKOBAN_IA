@@ -26,6 +26,7 @@ public class GameConfig {
 	public static final String livelloSetteImage = "level7.png";
 	public static final String livelloOttoImage = "level8.png";
 	public static final String livelloNoveImage = "level9.png";
+	public static final String winImage = "WIN.png";
 
 	public static final String SKIN = "level-plane/skin/level-plane-ui.json";
 

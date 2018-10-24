@@ -18,6 +18,8 @@ public class SplashScreen implements Screen {
 	private Skin skin;
 	private ProgressBar progressBar;
 	private Stage stage;
+	
+	private float value= 0.01f;
 
 	public SplashScreen(Sokoban sokoban) {
 		// TODO Auto-generated constructor stub
@@ -34,7 +36,7 @@ public class SplashScreen implements Screen {
 		progressBar.setSize(250f, 200f);
 		progressBar.setPosition(Gdx.graphics.getWidth() / 2 - 125f, -45f);
 
-		progressBar.setValue(0);
+		progressBar.setValue(0.0f);
 
 		stage.addActor(progressBar);
 
@@ -54,9 +56,12 @@ public class SplashScreen implements Screen {
 		sokoban.batch.begin();
 		sokoban.batch.draw(loader.loadSplashImage(), 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		sokoban.batch.end();
-
-		progressBar.setValue(delta); //DA MODIFICARE
-
+		
+		if (value<1.0)
+			value=value+0.01f;
+		
+		progressBar.setValue(value); //DA MODIFICARE
+		
 		stage.act();
 		stage.draw();
 

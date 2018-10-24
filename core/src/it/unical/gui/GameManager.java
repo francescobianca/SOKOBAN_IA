@@ -56,7 +56,6 @@ public class GameManager implements Screen {
 	private Sprite sprite;
 	private Skin skin;
 	private TextButton solver;
-	private TextButton undo;
 	private TextButton reset;
 	private TextButton backToMenu;
 	private Stage stage;
@@ -76,7 +75,7 @@ public class GameManager implements Screen {
 	private LinkedList<String> listaStep;
 	private int indiceStep;
 	private int indiceSoluzioneMosse;
-
+	
 	public GameManager(final Sokoban sokoban) {
 		// TODO Auto-generated construtor stub
 		this.sokoban = sokoban;
@@ -85,7 +84,6 @@ public class GameManager implements Screen {
 		skin = new Skin(Gdx.files.internal(GameConfig.SKIN));
 
 		solver = new TextButton("SOLVE", skin);
-		undo = new TextButton("UNDO", skin);
 		reset = new TextButton("RESET", skin);
 		backToMenu = new TextButton("MENU'", skin);
 
@@ -97,11 +95,6 @@ public class GameManager implements Screen {
 		solver.setHeight(45);
 		solver.setColor(Color.CORAL);
 
-		undo.setPosition(605, 380);
-		undo.setWidth(150);
-		undo.setHeight(45);
-		undo.setColor(Color.CORAL);
-
 		reset.setPosition(605, 240);
 		reset.setWidth(150);
 		reset.setHeight(45);
@@ -111,18 +104,6 @@ public class GameManager implements Screen {
 		backToMenu.setWidth(150);
 		backToMenu.setHeight(45);
 		backToMenu.setColor(Color.CORAL);
-
-		undo.addListener(new InputListener() {
-			@Override
-			public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-				System.out.println("UNDO LISTENER");
-			}
-
-			@Override
-			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-				return true;
-			}
-		});
 
 		solver.addListener(new InputListener() {
 			@Override
@@ -169,7 +150,6 @@ public class GameManager implements Screen {
 		Gdx.input.setInputProcessor(stage);
 
 		stage.addActor(solver);
-		stage.addActor(undo);
 		stage.addActor(reset);
 		stage.addActor(backToMenu);
 
@@ -190,22 +170,25 @@ public class GameManager implements Screen {
 	public void loadLevel() {
 		world.loadMatrix();
 		player = world.getPlayer();
-		world.print();
+		//world.print();
 	}
 
 	public void movePlayer(int direction) {
 
 		if (!winner) {
-
+			
 			player.move(direction);
 
 			step++;
 			if (world.win()) {
 				winner = true;
-
+				
+				//sokoban.batch.draw(SplashScreen.loader.loadWinImage(), Gdx.graphics.getWidth()/2-96, Gdx.graphics.getHeight()-250, 192, 90);
+				
 				if (sokoban.getLivelloScelto() < 9)
 					sokoban.setLivelloScelto(sokoban.getLivelloScelto() + 1);
 
+				
 				sokoban.swap(1);
 			}
 		}
@@ -339,7 +322,11 @@ public class GameManager implements Screen {
 			sokoban.batch.draw(SplashScreen.loader.loadLivelloOttoImage(), 658, 450, 45, 57);
 		else if (sokoban.getLivelloScelto() == 9)
 			sokoban.batch.draw(SplashScreen.loader.loadLivelloNoveImage(), 660, 450, 41, 57);
-
+		
+		
+		//sokoban.batch.draw(SplashScreen.loader.loadWinImage(), Gdx.graphics.getWidth()/2-96, Gdx.graphics.getHeight()-250, 192, 90);
+		
+		
 		sokoban.batch.end();
 
 		stage.act();
@@ -391,8 +378,8 @@ public class GameManager implements Screen {
 			Collections.sort(soluzioneMosse);
 			for (int i = 0; i < soluzioneMosse.size(); i++) {
 				Mossa m = soluzioneMosse.get(i);
-				System.out.println(
-						"Step: " + m.getStep() + " IdScatola: " + m.getIdBox() + " direzione: " + m.getDirezione());
+				/*System.out.println(
+						"Step: " + m.getStep() + " IdScatola: " + m.getIdBox() + " direzione: " + m.getDirezione());*/
 			}
 			indiceStep=0;
 		}
@@ -426,7 +413,7 @@ public class GameManager implements Screen {
 	}
 
 	public void calcolaStep() {
-		System.out.println("----------------------------------------");
+		//System.out.println("----------------------------------------");
 		Mossa m = soluzioneMosse.get(indiceSoluzioneMosse);
 		Box b = null;
 
@@ -449,21 +436,21 @@ public class GameManager implements Screen {
 			newI = b.getI();
 			newJ = b.getJ() - 1;
 		}
-		System.out.println(player.getI() + " " + player.getJ());
-		System.out.println(newI);
-		System.out.println(newJ);
+		//System.out.println(player.getI() + " " + player.getJ());
+		//System.out.println(newI);
+		//System.out.println(newJ);
 		CalcolaPercorso calcola = CalcolaPercorso.getIstance();
 		LinkedList<String> movimenti = new LinkedList<String>();
 		int dist = calcola.restituisciPercorso(movimenti, world, this.player, newI, newJ);
-		System.out.println(movimenti.toString() + " " + dist);
+		//System.out.println(movimenti.toString() + " " + dist);
 		if (dist != 0) {
 			this.listaStep.addAll(movimenti);
 			this.listaStep.add(m.getDirezione());
 		}else {
 			System.out.println("Non sono riuscito a trovare il percorso da "+player.getI()+", "+player.getJ());
-			System.out.println("a "+newI+", "+newJ);
+			//System.out.println("a "+newI+", "+newJ);
 		}
-		System.out.println(listaStep.toString());
+		//System.out.println(listaStep.toString());
 		indiceSoluzioneMosse++;
 	}
 
