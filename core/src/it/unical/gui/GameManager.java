@@ -58,8 +58,13 @@ public class GameManager implements Screen {
 	private TextButton solver;
 	private TextButton reset;
 	private TextButton backToMenu;
+	private TextButton nextLevel;
 	private Stage stage;
 
+	private final float widthWin=288f;
+	private final float heightWin=133.5f;
+	
+	
 	// EmbASP integration
 	private static Handler handler;
 	private static String encondingPath = "encodings/";
@@ -75,9 +80,11 @@ public class GameManager implements Screen {
 	private LinkedList<String> listaStep;
 	private int indiceStep;
 	private int indiceSoluzioneMosse;
-	
+
+	private boolean DLVsolving = false;
+
 	public GameManager(final Sokoban sokoban) {
-		// TODO Auto-generated construtor stub
+		// TODO Auto-generated constructor stub
 		this.sokoban = sokoban;
 
 		sprite = new Sprite(new TextureRegion(SplashScreen.loader.loadPlayerImage(), 0, 0, 64, 64));
@@ -86,16 +93,17 @@ public class GameManager implements Screen {
 		solver = new TextButton("SOLVE", skin);
 		reset = new TextButton("RESET", skin);
 		backToMenu = new TextButton("MENU'", skin);
-
+		nextLevel= new TextButton("NEXT LEVEL", skin);
+		
 		soluzioneScatole = new ArrayList<Scatola>();
 		soluzioneMosse = new ArrayList<Mossa>();
 
-		solver.setPosition(605, 310);
+		solver.setPosition(605, 370);
 		solver.setWidth(150);
 		solver.setHeight(45);
 		solver.setColor(Color.CORAL);
 
-		reset.setPosition(605, 240);
+		reset.setPosition(605, 300);
 		reset.setWidth(150);
 		reset.setHeight(45);
 		reset.setColor(Color.CORAL);
@@ -104,12 +112,20 @@ public class GameManager implements Screen {
 		backToMenu.setWidth(150);
 		backToMenu.setHeight(45);
 		backToMenu.setColor(Color.CORAL);
-
+		
+		nextLevel.setPosition(605, 110);
+		nextLevel.setWidth(150);
+		nextLevel.setHeight(45);
+		nextLevel.setColor(Color.CORAL);
+		nextLevel.setVisible(false);
+		
+		
 		solver.addListener(new InputListener() {
 			@Override
 			public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
 				System.out.println("SOLVER LISTENER");
 				startDLV = true;
+				DLVsolving=true;
 			}
 
 			@Override
@@ -145,6 +161,21 @@ public class GameManager implements Screen {
 				return true;
 			}
 		});
+		
+		nextLevel.addListener(new InputListener() {
+			@Override
+			public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+				if (sokoban.getLivelloScelto() < 9)
+					sokoban.setLivelloScelto(sokoban.getLivelloScelto() + 1);
+
+				sokoban.swap(1);
+			}
+
+			@Override
+			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+				return true;
+			}
+		});
 
 		stage = new Stage(new ScreenViewport());
 		Gdx.input.setInputProcessor(stage);
@@ -152,6 +183,7 @@ public class GameManager implements Screen {
 		stage.addActor(solver);
 		stage.addActor(reset);
 		stage.addActor(backToMenu);
+		stage.addActor(nextLevel);
 
 		handler = new DesktopHandler(new DLV2DesktopService("lib/dlv2"));
 		encoding = new ASPInputProgram();
@@ -170,26 +202,26 @@ public class GameManager implements Screen {
 	public void loadLevel() {
 		world.loadMatrix();
 		player = world.getPlayer();
-		//world.print();
+		// world.print();
 	}
 
 	public void movePlayer(int direction) {
 
 		if (!winner) {
-			
+
 			player.move(direction);
 
 			step++;
 			if (world.win()) {
 				winner = true;
-				
-				//sokoban.batch.draw(SplashScreen.loader.loadWinImage(), Gdx.graphics.getWidth()/2-96, Gdx.graphics.getHeight()-250, 192, 90);
-				
-				if (sokoban.getLivelloScelto() < 9)
+				nextLevel.setVisible(true);
+				// sokoban.batch.draw(SplashScreen.loader.loadWinImage(),
+				// Gdx.graphics.getWidth()/2-96, Gdx.graphics.getHeight()-250, 192, 90);
+
+			/*	if (sokoban.getLivelloScelto() < 9)
 					sokoban.setLivelloScelto(sokoban.getLivelloScelto() + 1);
 
-				
-				sokoban.swap(1);
+				sokoban.swap(1);*/
 			}
 		}
 	}
@@ -210,6 +242,8 @@ public class GameManager implements Screen {
 		listaStep.clear();
 		soluzioneScatole.clear();
 		soluzioneMosse.clear();
+		DLVsolving = false;
+		nextLevel.setVisible(false);
 		
 		minNumeroMosse = NUMERO_MOSSE_PARTENZA;
 		world = new World(sokoban.getLivelloScelto());
@@ -230,16 +264,19 @@ public class GameManager implements Screen {
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
 		sokoban.batch.begin();
-
-		attesa += delta;
-		if (attesa >= FREQUENZA_AGGIORNAMENTO) {
-			if (indiceStep < listaStep.size()) {
-				attesa = 0;
-				spostaPlayerDLV();
-				indiceStep++;
-			} else {
-				if (indiceSoluzioneMosse < soluzioneMosse.size())
-					calcolaStep();
+		
+		//se sta risolvendo DLV allora faccio muovere automaticamente il personaggio
+		if (DLVsolving) {
+			attesa += delta;
+			if (attesa >= FREQUENZA_AGGIORNAMENTO) {
+				if (indiceStep < listaStep.size()) {
+					attesa = 0;
+					spostaPlayerDLV();
+					indiceStep++;
+				} else {
+					if (indiceSoluzioneMosse < soluzioneMosse.size())
+						calcolaStep();
+				}
 			}
 		}
 
@@ -283,22 +320,25 @@ public class GameManager implements Screen {
 		sprite.setPosition(world.getPlayer().getJ() * 64, maxI - (world.getPlayer().getI() * 64));
 		sprite.draw(sokoban.batch);
 
-		if (Gdx.input.isKeyJustPressed(Keys.UP)) {
-			movePlayer(player.UP);
-			sprite.setRegion(128, 0, 64, 64);
-			sprite.draw(sokoban.batch);
-		} else if (Gdx.input.isKeyJustPressed(Keys.DOWN)) {
-			movePlayer(player.DOWN);
-			sprite.setRegion(0, 0, 64, 64);
-			sprite.draw(sokoban.batch);
-		} else if (Gdx.input.isKeyJustPressed(Keys.LEFT)) {
-			movePlayer(player.LEFT);
-			sprite.setRegion(64, 0, 64, 64);
-			sprite.draw(sokoban.batch);
-		} else if (Gdx.input.isKeyJustPressed(Keys.RIGHT)) {
-			movePlayer(player.RIGHT);
-			sprite.setRegion(192, 0, 64, 64);
-			sprite.draw(sokoban.batch);
+		// non abilito l'uso dei tasti se sta risolvendo DLV
+		if (!DLVsolving) {
+			if (Gdx.input.isKeyJustPressed(Keys.UP)) {
+				movePlayer(player.UP);
+				sprite.setRegion(128, 0, 64, 64);
+				sprite.draw(sokoban.batch);
+			} else if (Gdx.input.isKeyJustPressed(Keys.DOWN)) {
+				movePlayer(player.DOWN);
+				sprite.setRegion(0, 0, 64, 64);
+				sprite.draw(sokoban.batch);
+			} else if (Gdx.input.isKeyJustPressed(Keys.LEFT)) {
+				movePlayer(player.LEFT);
+				sprite.setRegion(64, 0, 64, 64);
+				sprite.draw(sokoban.batch);
+			} else if (Gdx.input.isKeyJustPressed(Keys.RIGHT)) {
+				movePlayer(player.RIGHT);
+				sprite.setRegion(192, 0, 64, 64);
+				sprite.draw(sokoban.batch);
+			}
 		}
 
 		// Riquadro opzioni
@@ -322,10 +362,14 @@ public class GameManager implements Screen {
 			sokoban.batch.draw(SplashScreen.loader.loadLivelloOttoImage(), 658, 450, 45, 57);
 		else if (sokoban.getLivelloScelto() == 9)
 			sokoban.batch.draw(SplashScreen.loader.loadLivelloNoveImage(), 660, 450, 41, 57);
-		
-		
-		//sokoban.batch.draw(SplashScreen.loader.loadWinImage(), Gdx.graphics.getWidth()/2-96, Gdx.graphics.getHeight()-250, 192, 90);
-		
+
+		// sokoban.batch.draw(SplashScreen.loader.loadWinImage(),
+		// Gdx.graphics.getWidth()/2-96, Gdx.graphics.getHeight()-250, 192, 90);
+
+		if(winner) {
+			sokoban.batch.draw(SplashScreen.loader.loadWinImage(),(Gdx.graphics.getWidth()/2.0f)-(this.widthWin/2.0f),(Gdx.graphics.getHeight()/2.0f)-(this.heightWin/2.0f),
+					this.widthWin,this.heightWin);
+		}
 		
 		sokoban.batch.end();
 
@@ -335,7 +379,7 @@ public class GameManager implements Screen {
 		if (startDLV) {
 			startDLV = false;
 			boolean risolto = false;
-			
+
 			while (!risolto) {
 				// setto al world il minimo numero di mosse del gameManager
 				world.setMaxMosse(minNumeroMosse);
@@ -376,12 +420,7 @@ public class GameManager implements Screen {
 			}
 			// Collections.sort(soluzioneScatole);
 			Collections.sort(soluzioneMosse);
-			for (int i = 0; i < soluzioneMosse.size(); i++) {
-				Mossa m = soluzioneMosse.get(i);
-				/*System.out.println(
-						"Step: " + m.getStep() + " IdScatola: " + m.getIdBox() + " direzione: " + m.getDirezione());*/
-			}
-			indiceStep=0;
+			indiceStep = 0;
 		}
 	}
 
@@ -413,7 +452,7 @@ public class GameManager implements Screen {
 	}
 
 	public void calcolaStep() {
-		//System.out.println("----------------------------------------");
+		// System.out.println("----------------------------------------");
 		Mossa m = soluzioneMosse.get(indiceSoluzioneMosse);
 		Box b = null;
 
@@ -436,21 +475,21 @@ public class GameManager implements Screen {
 			newI = b.getI();
 			newJ = b.getJ() - 1;
 		}
-		//System.out.println(player.getI() + " " + player.getJ());
-		//System.out.println(newI);
-		//System.out.println(newJ);
+		// System.out.println(player.getI() + " " + player.getJ());
+		// System.out.println(newI);
+		// System.out.println(newJ);
 		CalcolaPercorso calcola = CalcolaPercorso.getIstance();
 		LinkedList<String> movimenti = new LinkedList<String>();
 		int dist = calcola.restituisciPercorso(movimenti, world, this.player, newI, newJ);
-		//System.out.println(movimenti.toString() + " " + dist);
+		// System.out.println(movimenti.toString() + " " + dist);
 		if (dist != 0) {
 			this.listaStep.addAll(movimenti);
 			this.listaStep.add(m.getDirezione());
-		}else {
-			System.out.println("Non sono riuscito a trovare il percorso da "+player.getI()+", "+player.getJ());
-			//System.out.println("a "+newI+", "+newJ);
+		} else {
+			System.out.println("Non sono riuscito a trovare il percorso da " + player.getI() + ", " + player.getJ());
+			// System.out.println("a "+newI+", "+newJ);
 		}
-		//System.out.println(listaStep.toString());
+		// System.out.println(listaStep.toString());
 		indiceSoluzioneMosse++;
 	}
 
