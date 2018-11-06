@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -61,6 +62,9 @@ public class GameManager implements Screen {
 	private TextButton nextLevel;
 	private Stage stage;
 
+	private Sound winSound;
+	
+	
 	private final float widthWin=288f;
 	private final float heightWin=133.5f;
 	
@@ -86,7 +90,9 @@ public class GameManager implements Screen {
 	public GameManager(final Sokoban sokoban) {
 		// TODO Auto-generated constructor stub
 		this.sokoban = sokoban;
-
+		
+		winSound= Gdx.audio.newSound(Gdx.files.internal("nextLevelSound.ogg"));
+		
 		sprite = new Sprite(new TextureRegion(SplashScreen.loader.loadPlayerImage(), 0, 0, 64, 64));
 		skin = new Skin(Gdx.files.internal(GameConfig.SKIN));
 
@@ -212,6 +218,7 @@ public class GameManager implements Screen {
 			step++;
 			if (world.win()) {
 				winner = true;
+				winSound.play(1.0f);
 				nextLevel.setVisible(true);
 				// sokoban.batch.draw(SplashScreen.loader.loadWinImage(),
 				// Gdx.graphics.getWidth()/2-96, Gdx.graphics.getHeight()-250, 192, 90);

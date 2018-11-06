@@ -6,6 +6,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
+
 import it.unical.encodingObject.Colonna;
 import it.unical.encodingObject.MaxMosse;
 import it.unical.encodingObject.Muro;
@@ -31,9 +34,14 @@ public class World {
 	private int maxMosse;
 
 	private final int livello;
+	
+	private Sound moveBox;
 
 	public World(final int livello) {
 		this.livello = livello;
+		
+		this.moveBox = Gdx.audio.newSound(Gdx.files.internal("shiftBox.wav"));
+		
 	}
 
 	public ObjectGame getObject(int i, int j) {
@@ -223,6 +231,7 @@ public class World {
 	}
 
 	public void movePlayerAndBox(int i1, int j1, int i2, int j2, int i3, int j3) {
+		moveBox.play(1.0f,2.0f,1f);
 		moveBox(i2, j2, i3, j3);
 		movePlayer(i1, j1, i2, j2);
 	}
