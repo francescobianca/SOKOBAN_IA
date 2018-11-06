@@ -138,9 +138,7 @@ public class GameManager implements Screen {
 			@Override
 			public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
 				System.out.println("RESET LISTENER");
-
-				loadLevel();
-				winner = false;
+				sokoban.swap(1);
 			}
 
 			@Override
